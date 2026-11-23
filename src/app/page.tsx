@@ -1,3 +1,4 @@
+import { EventsSection } from "@/components/events-section"
 import { FeaturesSection } from "@/components/features-section"
 import { HeroSession } from "@/components/hero-session"
 
@@ -6,6 +7,7 @@ export default function Home() {
     <main className="flex flex-1 flex-col bg-white">
       <HeroSession />
       <FeaturesSection />
+      <EventsSection />
     </main>
   )
 }
