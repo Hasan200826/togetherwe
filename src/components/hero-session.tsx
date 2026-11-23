@@ -39,8 +39,8 @@ function Sparkles({ className }: { className?: string }) {
 export function HeroSession() {
   return (
     <section aria-labelledby="hero-title" className="bg-white">
-      <div className="mx-auto w-full max-w-7xl ">
-        <div className="relative isolate overflow-hidden rounded-none bg-white ring-1 ring-brand/5 ">
+      <div className="mx-auto w-full max-w-7xl md:px-8 md:py-6">
+        <div className="relative isolate overflow-hidden rounded-none bg-white ring-1 ring-brand/5 md:rounded-[1.5rem] lg:rounded-[2rem]">
           {/* Banner photo */}
           <div className="relative h-60 w-full sm:h-80 lg:absolute lg:inset-0 lg:h-full">
             <Image
