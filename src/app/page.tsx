@@ -1,3 +1,4 @@
+import {CommunityGallerySection}  from "@/components/community-gallery-section"
 import { EventsSection } from "@/components/events-section"
 import { FeaturesSection } from "@/components/features-section"
 import { HeroSession } from "@/components/hero-session"
@@ -8,6 +9,7 @@ export default function Home() {
       <HeroSession />
       <FeaturesSection />
       <EventsSection />
+      <CommunityGallerySection/>
     </main>
   )
 }

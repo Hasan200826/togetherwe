@@ -1,11 +1,9 @@
-import React from 'react';
+import { CommunityGallerySection } from "@/components/community-gallery-section"
 
-const GalleryPage = () => {
+export default function GalleryPage() {
   return (
-    <div>
-      gallery page is loding...
-    </div>
-  );
-};
-
-export default GalleryPage;
+    <main className="flex flex-1 flex-col bg-white">
+      <CommunityGallerySection className="py-6 sm:py-8 lg:py-10" />
+    </main>
+  )
+}
