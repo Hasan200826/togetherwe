@@ -1,8 +1,14 @@
-'use client'
+"use client";
 import Image from "next/image";
 import { Mail, Leaf } from "lucide-react";
 
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -49,7 +55,6 @@ export function CommunityGallerySection({
       className={cn("bg-[#fdfbf7] px-4 py-8 sm:px-6 lg:px-8", className)}
     >
       <div className="mx-auto w-full max-w-7xl">
-
         {/* Gallery Heading */}
         <div className="mb-6 flex flex-col items-center text-center">
           <div className="flex items-center justify-center gap-3">
@@ -73,7 +78,7 @@ export function CommunityGallerySection({
         </div>
 
         {/* Gallery Images */}
-        <Card className="gap-0 overflow-hidden rounded-2xl border-0 bg-transparent py-0 shadow-none">
+        <Card className="gap-0 overflow-hidden rounded-2xl bg-transparent py-0 shadow-none">
           <CardHeader className="hidden">
             <CardTitle>Community Gallery Images</CardTitle>
           </CardHeader>
@@ -101,14 +106,19 @@ export function CommunityGallerySection({
           {/* Newsletter Section */}
           <CardFooter className="mt-8 p-0">
             <div className="relative flex w-full flex-col items-center justify-between gap-5 overflow-hidden rounded-2xl bg-gradient-to-r from-[#064e2b] via-[#086332] to-[#064e2b] px-5 py-7 text-white sm:px-8 lg:flex-row lg:px-10">
-
               {/* Decorative Leaves */}
               <Leaf className="absolute -bottom-5 -left-3 size-24 rotate-[-35deg] text-green-400/20" />
               <Leaf className="absolute -bottom-7 left-8 size-16 rotate-[-15deg] text-green-400/15" />
 
               {/* Newsletter Content */}
               <div className="relative z-10 flex items-center gap-4">
-                <Mail className="size-10 shrink-0 fill-white text-white sm:size-12" />
+                <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-white/15 sm:size-14">
+                  <Mail
+                    className="size-7 text-white sm:size-8"
+                    strokeWidth={2}
+                    aria-hidden="true"
+                  />
+                </div>
 
                 <div>
                   <h3 className="text-lg font-bold sm:text-xl">
@@ -116,7 +126,8 @@ export function CommunityGallerySection({
                   </h3>
 
                   <p className="mt-1 text-xs text-green-100 sm:text-sm">
-                    Get the latest updates about our events and community activities.
+                    Get the latest updates about our events and community
+                    activities.
                   </p>
                 </div>
               </div>
@@ -154,5 +165,3 @@ export function CommunityGallerySection({
     </section>
   );
 }
-
-
