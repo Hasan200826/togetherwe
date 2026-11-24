@@ -68,7 +68,7 @@ export function UpcomingEventsHero() {
               </div>
 
               <p className="mt-4 max-w-[22rem] text-[0.95rem] leading-relaxed font-medium text-zinc-700 sm:mt-5 sm:text-base lg:mt-5 lg:text-lg">
-                Be a part of our upcoming events and
+                Be a part of our upcoming events and{" "}
                 <br className="hidden sm:block" />
                 make a difference together.
               </p>
