@@ -43,6 +43,7 @@ const CATEGORY_META: Record<
   Health: { icon: Stethoscope, className: "bg-sky-50 text-sky-600" },
   Environment: { icon: Leaf, className: "bg-teal-50 text-teal-700" },
   Social: { icon: UsersRound, className: "bg-violet-50 text-violet-600" },
+  Others: { icon: Tag, className: "bg-slate-100 text-slate-600" },
 }
 
 function formatEventDate(value: string) {
