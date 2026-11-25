@@ -29,11 +29,15 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
+      data-theme='light'
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
+      <head>
+      </head>
       <body className="min-h-full flex flex-col">
-        <Navbar />
+        <Navbar/>
         {children}
         <Footer />
       </body>

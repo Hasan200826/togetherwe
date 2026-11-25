@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Menu, Search } from "lucide-react"
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Menu, Search } from "lucide-react";
 
-import { Button, buttonVariants } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Sheet,
   SheetClose,
@@ -13,8 +13,10 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet"
-import { cn } from "@/lib/utils"
+} from "@/components/ui/sheet";
+import { cn } from "@/lib/utils";
+import { authClient } from "@/lib/auth-client";
+import { ProfileDropdown } from "./profile-dropdown";
 
 const NAV_ITEMS = [
   { label: "Home", href: "/" },
@@ -22,10 +24,12 @@ const NAV_ITEMS = [
   { label: "Gallery", href: "/gallery" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
-] as const
+] as const;
 
 function isActive(pathname: string, href: string) {
-  return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`)
+  return href === "/"
+    ? pathname === "/"
+    : pathname === href || pathname.startsWith(`${href}/`);
 }
 
 function Logo({ className }: { className?: string }) {
@@ -56,20 +60,34 @@ function Logo({ className }: { className?: string }) {
         Together<span className="text-brand-bright">We</span>
       </span>
     </Link>
-  )
+  );
 }
 
 export function Navbar() {
-  const pathname = usePathname()
+  const pathname = usePathname();
+  // Better Auth session
+  const { data: session, isPending } = authClient.useSession();
+
+  const user = session?.user;
+
+  if (isPending) {
+    return (
+      <header className="sticky top-0 z-50 h-18 w-full border-b bg-white" />
+    );
+  }
+  console.log(user);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-zinc-100 bg-white/95 shadow-[0_1px_12px_rgba(12,81,38,0.06)] backdrop-blur">
       <div className="mx-auto flex h-18 w-full max-w-7xl items-center gap-4 px-5 sm:px-8">
         <Logo />
 
-        <nav aria-label="Main" className="mx-auto hidden items-center gap-1 lg:flex">
+        <nav
+          aria-label="Main"
+          className="mx-auto hidden items-center gap-1 lg:flex"
+        >
           {NAV_ITEMS.map((item) => {
-            const active = isActive(pathname, item.href)
+            const active = isActive(pathname, item.href);
 
             return (
               <Link
@@ -80,12 +98,12 @@ export function Navbar() {
                   "rounded-full px-4 py-2.5 text-sm font-semibold whitespace-nowrap transition-colors",
                   active
                     ? "bg-brand text-white shadow-sm"
-                    : "text-zinc-800 hover:bg-brand-soft hover:text-brand-strong"
+                    : "text-zinc-800 hover:bg-brand-soft hover:text-brand-strong",
                 )}
               >
                 {item.label}
               </Link>
-            )
+            );
           })}
         </nav>
 
@@ -100,16 +118,31 @@ export function Navbar() {
             <Search className="size-5" strokeWidth={2.25} />
           </Button>
 
-          <span aria-hidden="true" className="hidden h-7 w-px bg-zinc-200 lg:block" />
-
-          <div className="hidden items-center gap-3 lg:flex">
-            <Link href="/login" className={buttonVariants({ variant: "brand-outline", size: "pill" })}>
-              Login
-            </Link>
-            <Link href="/register" className={buttonVariants({ variant: "brand", size: "pill" })}>
-              Register
-            </Link>
-          </div>
+          <span
+            aria-hidden="true"
+            className="hidden h-7 w-px bg-zinc-200 lg:block"
+          />
+          {user ? (
+            <ProfileDropdown />
+          ) : (
+            <div className="hidden items-center gap-3 lg:flex">
+              <Link
+                href="/login"
+                className={buttonVariants({
+                  variant: "brand-outline",
+                  size: "pill",
+                })}
+              >
+                Login
+              </Link>
+              <Link
+                href="/register"
+                className={buttonVariants({ variant: "brand", size: "pill" })}
+              >
+                Register
+              </Link>
+            </div>
+          )}
 
           <Sheet>
             <SheetTrigger
@@ -125,7 +158,10 @@ export function Navbar() {
               <Menu className="size-6" />
             </SheetTrigger>
 
-            <SheetContent side="right" className="w-[88%] max-w-sm gap-0 bg-white p-0">
+            <SheetContent
+              side="right"
+              className="w-[88%] max-w-sm gap-0 bg-white p-0"
+            >
               <SheetHeader className="border-b border-zinc-100 p-5">
                 <SheetTitle className="sr-only">Navigation menu</SheetTitle>
                 <Logo />
@@ -133,7 +169,7 @@ export function Navbar() {
 
               <nav aria-label="Mobile" className="flex flex-col gap-1 p-4">
                 {NAV_ITEMS.map((item) => {
-                  const active = isActive(pathname, item.href)
+                  const active = isActive(pathname, item.href);
 
                   return (
                     <SheetClose
@@ -144,31 +180,42 @@ export function Navbar() {
                         "rounded-xl px-4 py-3 text-sm font-semibold transition-colors",
                         active
                           ? "bg-brand text-white"
-                          : "text-zinc-800 hover:bg-brand-soft hover:text-brand-strong"
+                          : "text-zinc-800 hover:bg-brand-soft hover:text-brand-strong",
                       )}
                     >
                       {item.label}
                     </SheetClose>
-                  )
+                  );
                 })}
               </nav>
-
-              <SheetFooter className="gap-3 p-4 pt-0">
-                <Link
-                  href="/login"
-                  className={buttonVariants({ variant: "brand-outline", size: "pill" })}
-                >
-                  Login
-                </Link>
-                <Link href="/register" className={buttonVariants({ variant: "brand", size: "pill" })}>
-                  Register
-                </Link>
-              </SheetFooter>
+              {user ? (
+                <ProfileDropdown />
+              ) : (
+                <SheetFooter className="gap-3 p-4 pt-0">
+                  <Link
+                    href="/login"
+                    className={buttonVariants({
+                      variant: "brand-outline",
+                      size: "pill",
+                    })}
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    href="/register"
+                    className={buttonVariants({
+                      variant: "brand",
+                      size: "pill",
+                    })}
+                  >
+                    Register
+                  </Link>
+                </SheetFooter>
+              )}
             </SheetContent>
           </Sheet>
         </div>
       </div>
     </header>
-  )
+  );
 }
-

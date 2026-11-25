@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { useState, type FormEvent } from "react"
-import Link from "next/link"
+import { useState, type FormEvent } from "react";
+import Link from "next/link";
 import {
   ArrowRight,
   CheckCircle2,
@@ -12,32 +12,41 @@ import {
   Sparkles,
   User,
   UserPlus,
-} from "lucide-react"
+} from "lucide-react";
 
-import { BrandLogo } from "@/components/brand-logo"
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { cn } from "@/lib/utils"
+import { BrandLogo } from "@/components/brand-logo";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
+import { authClient } from "@/lib/auth-client";
+import { redirect, useRouter } from "next/navigation";
 
 type RegisterFormState = {
-  fullName: string
-  email: string
-  password: string
-  confirmPassword: string
-}
+  fullName: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+};
+export type FormInfo = {
+  fullName: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  agreedToTerms: boolean;
+};
 
 type RegisterErrors = Partial<
   Record<keyof RegisterFormState | "terms", string>
->
+>;
 
 const INITIAL_FORM: RegisterFormState = {
   fullName: "",
   email: "",
   password: "",
   confirmPassword: "",
-}
+};
 
 const FIELD_ORDER: (keyof RegisterErrors)[] = [
   "fullName",
@@ -45,7 +54,7 @@ const FIELD_ORDER: (keyof RegisterErrors)[] = [
   "password",
   "confirmPassword",
   "terms",
-]
+];
 
 const FIELD_IDS: Record<keyof RegisterErrors, string> = {
   fullName: "register-full-name",
@@ -53,9 +62,9 @@ const FIELD_IDS: Record<keyof RegisterErrors, string> = {
   password: "register-password",
   confirmPassword: "register-confirm-password",
   terms: "register-terms",
-}
+};
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function GoogleIcon({ className }: { className?: string }) {
   return (
@@ -77,7 +86,7 @@ function GoogleIcon({ className }: { className?: string }) {
         d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0A11.99 11.99 0 0 0 1.29 6.62l3.98 3.09C6.22 6.86 8.87 4.75 12 4.75Z"
       />
     </svg>
-  )
+  );
 }
 
 function GitHubIcon({ className }: { className?: string }) {
@@ -88,117 +97,129 @@ function GitHubIcon({ className }: { className?: string }) {
         d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"
       />
     </svg>
-  )
+  );
 }
 
 export function RegisterForm() {
-  const [form, setForm] = useState<RegisterFormState>(INITIAL_FORM)
-  const [agreed, setAgreed] = useState(false)
-  const [errors, setErrors] = useState<RegisterErrors>({})
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
+  const [form, setForm] = useState<RegisterFormState>(INITIAL_FORM);
+  const [agreed, setAgreed] = useState(false);
+  const [errors, setErrors] = useState<RegisterErrors>({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   function updateField(field: keyof RegisterFormState, value: string) {
-    setForm((previous) => ({ ...previous, [field]: value }))
+    setForm((previous) => ({ ...previous, [field]: value }));
     setErrors((previous) => {
       if (!previous[field]) {
-        return previous
+        return previous;
       }
 
-      const next = { ...previous }
-      delete next[field]
-      return next
-    })
+      const next = { ...previous };
+      delete next[field];
+      return next;
+    });
 
     if (submitted) {
-      setSubmitted(false)
+      setSubmitted(false);
     }
   }
 
+  const router = useRouter();
   function updateAgreement(checked: boolean) {
-    setAgreed(checked)
+    setAgreed(checked);
     setErrors((previous) => {
       if (!previous.terms) {
-        return previous
+        return previous;
       }
 
-      const next = { ...previous }
-      delete next.terms
-      return next
-    })
+      const next = { ...previous };
+      delete next.terms;
+      return next;
+    });
 
     if (submitted) {
-      setSubmitted(false)
+      setSubmitted(false);
     }
   }
 
   function validate() {
-    const next: RegisterErrors = {}
-    const fullName = form.fullName.trim()
-    const email = form.email.trim()
+    const next: RegisterErrors = {};
+    const fullName = form.fullName.trim();
+    const email = form.email.trim();
 
     if (fullName.length < 2) {
-      next.fullName = "Please enter your full name."
+      next.fullName = "Please enter your full name.";
     }
 
     if (!email) {
-      next.email = "Please enter your email address."
+      next.email = "Please enter your email address.";
     } else if (!EMAIL_PATTERN.test(email)) {
-      next.email = "Please enter a valid email address."
+      next.email = "Please enter a valid email address.";
     }
 
     if (!form.password) {
-      next.password = "Please create a password."
+      next.password = "Please create a password.";
     } else if (form.password.length < 8) {
-      next.password = "Password must be at least 8 characters."
+      next.password = "Password must be at least 8 characters.";
     }
 
     if (!form.confirmPassword) {
-      next.confirmPassword = "Please confirm your password."
+      next.confirmPassword = "Please confirm your password.";
     } else if (form.confirmPassword !== form.password) {
-      next.confirmPassword = "Passwords do not match."
+      next.confirmPassword = "Passwords do not match.";
     }
 
     if (!agreed) {
-      next.terms = "Please accept the Terms & Conditions and Privacy Policy."
+      next.terms = "Please accept the Terms & Conditions and Privacy Policy.";
     }
 
-    return next
+    return next;
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    const nextErrors = validate()
-    setErrors(nextErrors)
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const nextErrors = validate();
+    setErrors(nextErrors);
 
-    const firstInvalidField = FIELD_ORDER.find((field) => nextErrors[field])
+    const firstInvalidField = FIELD_ORDER.find((field) => nextErrors[field]);
 
     if (firstInvalidField) {
-      setSubmitted(false)
-      document.getElementById(FIELD_IDS[firstInvalidField])?.focus()
+      setSubmitted(false);
+      document.getElementById(FIELD_IDS[firstInvalidField])?.focus();
 
       if (firstInvalidField === "terms") {
         requestAnimationFrame(() => {
           document
             .getElementById("register-terms-error")
-            ?.scrollIntoView({ behavior: "smooth", block: "center" })
-        })
+            ?.scrollIntoView({ behavior: "smooth", block: "center" });
+        });
       }
 
-      return
+      return;
     }
 
     const formInfo = {
-      fullName: form.fullName.trim(),
+      name: form.fullName.trim(),
       email: form.email.trim(),
       password: form.password,
       confirmPassword: form.confirmPassword,
       agreedToTerms: agreed,
-    }
+    };
 
-    console.log("Register form info:", formInfo)
-    setSubmitted(true)
+    console.log("Register form info:", formInfo);
+
+    const { data, error } = await authClient.signUp.email({
+      ...(formInfo as FormInfo),
+    });
+
+    console.log(error);
+
+    if (!error) {
+      setSubmitted(true);
+      router.replace("/");
+      router.refresh();
+    }
   }
 
   return (
@@ -426,9 +447,7 @@ export function RegisterForm() {
                     : "Show confirm password"
                 }
                 aria-pressed={showConfirmPassword}
-                onClick={() =>
-                  setShowConfirmPassword((visible) => !visible)
-                }
+                onClick={() => setShowConfirmPassword((visible) => !visible)}
                 className="absolute top-1/2 right-2.5 -translate-y-1/2 rounded-md p-1.5 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:outline-none"
               >
                 {showConfirmPassword ? (
@@ -454,9 +473,7 @@ export function RegisterForm() {
                 id="register-terms"
                 name="terms"
                 checked={agreed}
-                onCheckedChange={(checked) =>
-                  updateAgreement(checked === true)
-                }
+                onCheckedChange={(checked) => updateAgreement(checked === true)}
                 aria-invalid={Boolean(errors.terms)}
                 aria-describedby={
                   errors.terms ? "register-terms-error" : undefined
@@ -468,8 +485,8 @@ export function RegisterForm() {
                 <a
                   href="#"
                   onClick={(event) => {
-                    event.preventDefault()
-                    event.stopPropagation()
+                    event.preventDefault();
+                    event.stopPropagation();
                   }}
                   className="font-semibold text-brand hover:underline"
                 >
@@ -479,8 +496,8 @@ export function RegisterForm() {
                 <a
                   href="#"
                   onClick={(event) => {
-                    event.preventDefault()
-                    event.stopPropagation()
+                    event.preventDefault();
+                    event.stopPropagation();
                   }}
                   className="font-semibold text-brand hover:underline"
                 >
@@ -517,8 +534,8 @@ export function RegisterForm() {
                 className="mt-0.5 size-4 shrink-0 text-brand"
               />
               <p className="text-xs leading-relaxed">
-                Registration info logged to the console. Check your browser
-                dev tools.
+                Registration info logged to the console. Check your browser dev
+                tools.
               </p>
             </div>
           ) : null}
@@ -539,7 +556,7 @@ export function RegisterForm() {
               variant="outline"
               onClick={() => console.log("Continue with Google")}
               className={cn(
-                "h-10 rounded-xl border-zinc-200 bg-white px-2 text-[0.7rem] font-semibold text-zinc-700 shadow-none hover:bg-zinc-50 sm:text-xs"
+                "h-10 rounded-xl border-zinc-200 bg-white px-2 text-[0.7rem] font-semibold text-zinc-700 shadow-none hover:bg-zinc-50 sm:text-xs",
               )}
             >
               <GoogleIcon className="size-4 shrink-0" />
@@ -550,7 +567,7 @@ export function RegisterForm() {
               variant="outline"
               onClick={() => console.log("Continue with GitHub")}
               className={cn(
-                "h-10 rounded-xl border-zinc-200 bg-white px-2 text-[0.7rem] font-semibold text-zinc-700 shadow-none hover:bg-zinc-50 sm:text-xs"
+                "h-10 rounded-xl border-zinc-200 bg-white px-2 text-[0.7rem] font-semibold text-zinc-700 shadow-none hover:bg-zinc-50 sm:text-xs",
               )}
             >
               <GitHubIcon className="size-4 shrink-0" />
@@ -571,5 +588,5 @@ export function RegisterForm() {
         </form>
       </div>
     </section>
-  )
+  );
 }
