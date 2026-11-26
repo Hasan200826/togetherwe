@@ -4,10 +4,8 @@ import Link from "next/link";
 import { useTheme } from "next-themes";
 import {
   UserRound,
-  CalendarDays,
   Users,
   Plus,
-  Settings,
   Moon,
   LogOut,
   ChevronDown,
@@ -24,7 +22,6 @@ import {
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { authClient } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
 
 const menuItems = [
   {
@@ -34,25 +31,16 @@ const menuItems = [
     active: true,
   },
   {
-    label: "My Events",
-    href: "/my-events",
-    icon: CalendarDays,
-  },
-  {
     label: "Joined Events",
     href: "/joined-events",
     icon: Users,
   },
   {
     label: "Create Event",
-    href: "/create-event",
+    href: "/upcoming-events/add-newevent",
     icon: Plus,
   },
-  {
-    label: "Settings",
-    href: "/settings",
-    icon: Settings,
-  },
+
 ];
 
 export function ProfileDropdown() {
@@ -60,11 +48,12 @@ export function ProfileDropdown() {
   // Better Auth session
   const { data: session, isPending } = authClient.useSession();
 
-  const user = session?.user;
-
   if (isPending) {
     return (
-      <header className="sticky top-0 z-50 h-18 w-full border-b bg-white" />
+      <span
+        aria-hidden="true"
+        className="size-9 shrink-0 animate-pulse rounded-full bg-green-100"
+      />
     );
   }
 
@@ -76,8 +65,8 @@ export function ProfileDropdown() {
 
   return (
     <div className="flex items-center gap-5">
-      {/* Notification */}
-      <button className="relative text-gray-700">
+      {/* Notification — hidden on small screens so the bar never overflows */}
+      <button className="relative hidden text-gray-700 sm:block">
         <Bell className="h-7 w-7" />
 
         <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
@@ -87,19 +76,22 @@ export function ProfileDropdown() {
 
       {/* Profile Dropdown */}
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <button className="flex items-center gap-3 rounded-full bg-green-50 px-4 py-2 outline-none transition hover:bg-green-100">
-            <Avatar className="h-9 w-9 bg-green-700">
-              <AvatarImage src="/profile.jpg" alt="Hasan" />
-              <AvatarFallback>HM</AvatarFallback>
-            </Avatar>
+        <DropdownMenuTrigger
+          render={
+            <button className="flex items-center gap-3 rounded-full bg-green-50 px-4 py-2 outline-none transition hover:bg-green-100" />
+          }
+        >
+          <Avatar className="h-9 w-9 bg-green-700">
+            <AvatarImage src="/profile.jpg" alt="Hasan" />
+            <AvatarFallback>HM</AvatarFallback>
+          </Avatar>
 
-            <span className="text-sm font-semibold text-green-900">
-              {session?.user.name}
-            </span>
+          {/* Name hidden below sm; it still shows in the dropdown itself */}
+          <span className="hidden truncate text-sm font-semibold text-green-900 sm:inline">
+            {session?.user.name}
+          </span>
 
-            <ChevronDown className="h-4 w-4 text-green-800" />
-          </button>
+          <ChevronDown className="h-4 w-4 text-green-800" />
         </DropdownMenuTrigger>
 
         <DropdownMenuContent
@@ -133,17 +125,15 @@ export function ProfileDropdown() {
               return (
                 <DropdownMenuItem
                   key={item.label}
-                  asChild
+                  render={<Link href={item.href} />}
                   className={`flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium ${
                     item.active
                       ? "bg-green-100 text-green-800 focus:bg-green-100 focus:text-green-800"
                       : "text-gray-800 focus:bg-green-50 dark:text-gray-200 dark:focus:bg-gray-800"
                   }`}
                 >
-                  <Link href={item.href} className=" flex gap-2">
-                    <Icon className="h-4 w-4" />
-                    {item.label}
-                  </Link>
+                  <Icon className="h-4 w-4" />
+                  {item.label}
                 </DropdownMenuItem>
               );
             })}

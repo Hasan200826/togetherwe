@@ -1,11 +1,9 @@
 "use client"
 
 import {
-  useEffect,
   useRef,
   useState,
   type ChangeEvent,
-  type DragEvent,
   type FormEvent,
 } from "react"
 import Image from "next/image"
@@ -13,7 +11,6 @@ import {
   Broom,
   CalendarDays,
   CheckCircle2,
-  CloudUpload,
   Gift,
   Leaf,
   Lightbulb,
@@ -41,6 +38,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
+import { redirect } from "next/navigation"
 
 type FormState = {
   title: string
@@ -51,12 +49,6 @@ type FormState = {
 }
 
 type FormErrors = Partial<Record<keyof FormState | "image", string>>
-
-type UploadedImage = {
-  url: string
-  name: string
-  file: File
-}
 
 const INITIAL_FORM: FormState = {
   title: "",
@@ -85,9 +77,6 @@ const FIELD_ORDER: (keyof FormState | "image")[] = [
   "image",
 ]
 
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024
-const ACCEPTED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp"]
-
 function getTodayISO() {
   const today = new Date()
   const month = String(today.getMonth() + 1).padStart(2, "0")
@@ -96,23 +85,22 @@ function getTodayISO() {
   return `${today.getFullYear()}-${month}-${day}`
 }
 
+function isValidImageUrl(value: string) {
+  try {
+    const url = new URL(value)
+    return url.protocol === "http:" || url.protocol === "https:"
+  } catch {
+    return false
+  }
+}
+
 export function AddEventForm() {
   const [form, setForm] = useState<FormState>(INITIAL_FORM)
   const [errors, setErrors] = useState<FormErrors>({})
-  const [image, setImage] = useState<UploadedImage | null>(null)
-  const [isDragging, setIsDragging] = useState(false)
+  const [imageUrl, setImageUrl] = useState("")
   const [isSubmitted, setIsSubmitted] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const objectUrlRef = useRef<string | null>(null)
+  const imageInputRef = useRef<HTMLInputElement>(null)
   const successRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    return () => {
-      if (objectUrlRef.current) {
-        URL.revokeObjectURL(objectUrlRef.current)
-      }
-    }
-  }, [])
 
   function updateField(field: keyof FormState, value: string) {
     setForm((previous) => ({ ...previous, [field]: value }))
@@ -131,31 +119,13 @@ export function AddEventForm() {
     }
   }
 
-  function handleImageFile(file: File) {
-    if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
-      setErrors((previous) => ({
-        ...previous,
-        image: "Please choose a PNG, JPG or WebP image.",
-      }))
-      return
-    }
-
-    if (file.size > MAX_IMAGE_SIZE) {
-      setErrors((previous) => ({
-        ...previous,
-        image: "That image is too large. Please choose a file under 5MB.",
-      }))
-      return
-    }
-
-    if (objectUrlRef.current) {
-      URL.revokeObjectURL(objectUrlRef.current)
-    }
-
-    const url = URL.createObjectURL(file)
-    objectUrlRef.current = url
-    setImage({ url, name: file.name, file })
+  function handleImageUrlChange(event: ChangeEvent<HTMLInputElement>) {
+    setImageUrl(event.target.value)
     setErrors((previous) => {
+      if (!previous.image) {
+        return previous
+      }
+
       const next = { ...previous }
       delete next.image
       return next
@@ -163,35 +133,10 @@ export function AddEventForm() {
     setIsSubmitted(false)
   }
 
-  function handleFileInput(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0]
-
-    if (file) {
-      handleImageFile(file)
-    }
-
-    event.target.value = ""
-  }
-
-  function handleDrop(event: DragEvent<HTMLDivElement>) {
-    event.preventDefault()
-    setIsDragging(false)
-
-    const file = event.dataTransfer.files?.[0]
-
-    if (file) {
-      handleImageFile(file)
-    }
-  }
-
   function removeImage() {
-    if (objectUrlRef.current) {
-      URL.revokeObjectURL(objectUrlRef.current)
-      objectUrlRef.current = null
-    }
-
-    setImage(null)
+    setImageUrl("")
     setIsSubmitted(false)
+    imageInputRef.current?.focus()
   }
 
   function validate() {
@@ -199,6 +144,7 @@ export function AddEventForm() {
     const title = form.title.trim()
     const description = form.description.trim()
     const location = form.location.trim()
+    const imageUrlValue = imageUrl.trim()
 
     if (title.length < 3) {
       next.title = "Please enter an event title with at least 3 characters."
@@ -223,42 +169,71 @@ export function AddEventForm() {
       next.location = "Please add a location for your event."
     }
 
+    if (imageUrlValue && !isValidImageUrl(imageUrlValue)) {
+      next.image =
+        "Please enter a valid image URL starting with http:// or https://."
+    }
+
     return next
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    const nextErrors = validate()
-    setErrors(nextErrors)
+  
+async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  event.preventDefault();
 
-    const firstInvalidField = FIELD_ORDER.find((field) => nextErrors[field])
+  const nextErrors = validate();
+  setErrors(nextErrors);
 
-    if (firstInvalidField) {
-      setIsSubmitted(false)
-      document.getElementById(`event-${firstInvalidField}`)?.focus()
-      return
+  const firstInvalidField = FIELD_ORDER.find(
+    (field) => nextErrors[field]
+  );
+
+  if (firstInvalidField) {
+    setIsSubmitted(false);
+    document.getElementById(`event-${firstInvalidField}`)?.focus();
+    return;
+  }
+
+  try {
+    // Create FormData
+    const Data = new FormData(event.currentTarget)
+    const formData = Object.fromEntries(Data.entries())
+    console.log(formData);
+
+    // Send request to backend
+    const res = await fetch("http://localhost:8000/add-event", {
+      method: "POST",
+      headers:{
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData) ,
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message || "Failed to create event");
+     
     }
+    console.log("Event Created Successfully:", data);
 
-    const eventData = {
-      title: form.title.trim(),
-      category: form.category,
-      description: form.description.trim(),
-      date: form.date,
-      location: form.location.trim(),
-      image: image?.file ?? null,
-    }
+    setIsSubmitted(true);
 
-    console.log("Create Event:", eventData)
-
-    setIsSubmitted(true)
     requestAnimationFrame(() => {
       successRef.current?.scrollIntoView({
         behavior: "smooth",
         block: "center",
-      })
-      successRef.current?.focus({ preventScroll: true })
-    })
+      });
+
+      successRef.current?.focus({ preventScroll: true });
+    });
+
+  } catch (error) {
+    console.error("Event Creation Error:", error);
+    setIsSubmitted(false);
   }
+}
+
 
   function handleReset() {
     setForm(INITIAL_FORM)
@@ -267,6 +242,10 @@ export function AddEventForm() {
     removeImage()
     document.getElementById("event-title")?.focus()
   }
+
+  const previewImageUrl = imageUrl.trim()
+  const showImagePreview =
+    previewImageUrl.length > 0 && isValidImageUrl(previewImageUrl)
 
   return (
     <div className="flex flex-1 flex-col bg-[#f7f8f4]">
@@ -537,33 +516,54 @@ export function AddEventForm() {
 
                 <div className="space-y-2">
                   <div className="flex items-center justify-between gap-3">
-                    <Label className="text-[0.82rem] font-semibold text-zinc-800">
+                    <Label
+                      htmlFor="event-image"
+                      className="text-[0.82rem] font-semibold text-zinc-800"
+                    >
                       Event Image
                     </Label>
                     <span className="text-[0.7rem] font-medium text-zinc-400">
-                      Optional · Max 5MB
+                      Optional
                     </span>
                   </div>
 
-                  <input
-                    ref={fileInputRef}
+                  <Input
+                    ref={imageInputRef}
                     id="event-image"
                     name="image"
-                    type="file"
-                    accept="image/png,image/jpeg,image/webp"
+                    type="url"
+                    inputMode="url"
+                    value={imageUrl}
+                    placeholder="https://example.com/event-cover.jpg"
+                    aria-invalid={Boolean(errors.image)}
                     aria-describedby={
-                      errors.image ? "event-image-error" : undefined
+                      errors.image
+                        ? "event-image-error"
+                        : "event-image-hint"
                     }
-                    className="sr-only"
-                    onChange={handleFileInput}
+                    onChange={handleImageUrlChange}
+                    className="h-10 rounded-xl border-zinc-200 bg-white px-3.5 text-sm shadow-none focus-visible:border-brand focus-visible:ring-brand/20 sm:h-11"
                   />
 
-                  {image ? (
+                  {errors.image ? (
+                    <p
+                      id="event-image-error"
+                      className="text-xs font-medium text-destructive"
+                    >
+                      {errors.image}
+                    </p>
+                  ) : (
+                    <p id="event-image-hint" className="text-[0.7rem] text-zinc-400">
+                      Paste a direct link to a PNG, JPG or WebP image.
+                    </p>
+                  )}
+
+                  {showImagePreview ? (
                     <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white">
                       <div className="relative aspect-[16/9] w-full bg-zinc-100">
                         <Image
-                          src={image.url}
-                          alt={`Preview of ${image.name}`}
+                          src={previewImageUrl}
+                          alt="Preview of the event image URL"
                           fill
                           unoptimized
                           sizes="(min-width: 1024px) 640px, 100vw"
@@ -574,16 +574,16 @@ export function AddEventForm() {
                             type="button"
                             variant="secondary"
                             size="sm"
-                            onClick={() => fileInputRef.current?.click()}
+                            onClick={() => imageInputRef.current?.focus()}
                             className="h-8 rounded-full bg-white/95 px-3 text-xs text-zinc-800 shadow-sm hover:bg-white"
                           >
-                            Replace
+                            Edit URL
                           </Button>
                           <Button
                             type="button"
                             variant="destructive"
                             size="icon-sm"
-                            aria-label="Remove selected image"
+                            aria-label="Remove event image URL"
                             onClick={removeImage}
                             className="rounded-full bg-white/95 text-red-600 shadow-sm hover:bg-white"
                           >
@@ -592,56 +592,9 @@ export function AddEventForm() {
                         </div>
                       </div>
                       <p className="truncate border-t border-zinc-100 px-3.5 py-2 text-[0.7rem] text-zinc-500">
-                        {image.name}
+                        {previewImageUrl}
                       </p>
                     </div>
-                  ) : (
-                    <div
-                      onDragEnter={(event) => {
-                        event.preventDefault()
-                        setIsDragging(true)
-                      }}
-                      onDragOver={(event) => {
-                        event.preventDefault()
-                        setIsDragging(true)
-                      }}
-                      onDragLeave={() => setIsDragging(false)}
-                      onDrop={handleDrop}
-                      className={cn(
-                        "rounded-2xl border-2 border-dashed transition-colors",
-                        isDragging
-                          ? "border-brand bg-brand-soft"
-                          : "border-zinc-200 bg-white hover:border-brand/40 hover:bg-brand-soft/40"
-                      )}
-                    >
-                      <button
-                        type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        className="flex w-full flex-col items-center justify-center gap-2 rounded-2xl px-6 py-8 text-center focus-visible:ring-3 focus-visible:ring-brand/25 focus-visible:outline-none"
-                      >
-                        <span className="grid size-11 place-items-center rounded-full bg-brand-soft text-brand">
-                          <CloudUpload
-                            aria-hidden="true"
-                            className="size-5"
-                          />
-                        </span>
-                        <span className="text-sm font-semibold text-zinc-700">
-                          Click to upload or drag and drop
-                        </span>
-                        <span className="text-xs text-zinc-400">
-                          PNG, JPG or WebP — up to 5MB
-                        </span>
-                      </button>
-                    </div>
-                  )}
-
-                  {errors.image ? (
-                    <p
-                      id="event-image-error"
-                      className="text-xs font-medium text-destructive"
-                    >
-                      {errors.image}
-                    </p>
                   ) : null}
                 </div>
               </CardContent>
@@ -683,7 +636,7 @@ export function AddEventForm() {
                 description: form.description.trim(),
                 date: form.date,
                 location: form.location.trim(),
-                imageUrl: image?.url ?? null,
+                imageUrl: showImagePreview ? previewImageUrl : null,
               }}
             />
           </div>

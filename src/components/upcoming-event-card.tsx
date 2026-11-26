@@ -9,6 +9,7 @@ import {
   MapPin,
   Sprout,
   Stethoscope,
+  Tag,
   UsersRound,
   type LucideIcon,
 } from "lucide-react"
@@ -25,6 +26,7 @@ export type EventCategory =
   | "Health"
   | "Environment"
   | "Social"
+  | "Others"
 
 export type UpcomingEvent = {
   slug: string
@@ -33,7 +35,7 @@ export type UpcomingEvent = {
   description: string
   date: string
   location: string
-  image: StaticImageData
+  image: string | StaticImageData
   imageAlt: string
   imageClassName?: string
 }
@@ -66,6 +68,10 @@ const CATEGORY_STYLES: Record<
     icon: UsersRound,
     className: "bg-violet-50 text-violet-600",
   },
+  Others: {
+    icon: Tag,
+    className: "bg-amber-50 text-amber-600",
+  },
 }
 
 export function EventCategoryBadge({
@@ -75,7 +81,8 @@ export function EventCategoryBadge({
   category: EventCategory
   className?: string
 }) {
-  const { icon: Icon, className: categoryClassName } = CATEGORY_STYLES[category]
+  const { icon: Icon, className: categoryClassName } =
+    CATEGORY_STYLES[category] ?? CATEGORY_STYLES.Others
 
   return (
     <Badge
@@ -115,6 +122,7 @@ export function UpcomingEventCard({
           src={event.image}
           alt={event.imageAlt}
           fill
+          unoptimized={typeof event.image === "string"}
           sizes="(min-width: 1280px) 251px, (min-width: 1024px) 220px, (min-width: 640px) 42vw, 100vw"
           className={cn(
             "object-cover transition-transform duration-500 group-hover:scale-[1.04]",

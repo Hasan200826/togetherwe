@@ -4,38 +4,11 @@ import { ArrowRight } from "lucide-react"
 import { EventCard } from "@/components/event-card"
 import { buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import donationImage from "@/Images/Gemini_Generated_Image_clt2quclt2quclt2 (1).jpg"
-import educationImage from "@/Images/Gemini_Generated_Image_clt2quclt2quclt2 (2).jpg"
-import cleanupImage from "@/Images/Gemini_Generated_Image_clt2quclt2quclt2 (3).jpg"
+export const instant =false
 
-const EVENTS = [
-  {
-    image: cleanupImage,
-    category: "Cleanup",
-    title: "River Cleanup Drive",
-    location: "Buriganga River, Dhaka",
-    date: "Nov 30, 2026",
-    href: "/upcoming-events",
-  },
-  {
-    image: educationImage,
-    category: "Education",
-    title: "Community Learning Day",
-    location: "Savar, Dhaka",
-    date: "Dec 05, 2026",
-    href: "/upcoming-events",
-  },
-  {
-    image: donationImage,
-    category: "Donation",
-    title: "Winter Clothes Donation",
-    location: "Dhaka",
-    date: "Dec 10, 2026",
-    href: "/upcoming-events",
-  },
-]
-
-export function EventsSection() {
+export async function EventsSection() {
+  const res =await fetch('http://localhost:8000/upcoming-events');
+  const EVENTS =await res.json();
   return (
     <section aria-labelledby="events-title" className="bg-white">
       <div className="mx-auto w-full max-w-7xl px-5 pt-4 pb-14 sm:px-8 sm:pt-6 sm:pb-16 lg:pb-20">
@@ -70,10 +43,10 @@ export function EventsSection() {
         </div>
 
         <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:mt-9 lg:grid-cols-3">
-          {EVENTS.map((event) => (
+          {EVENTS.slice(EVENTS.length-3,EVENTS.length).reverse().map((event) => (
             <EventCard
               key={event.title}
-              {...event}
+              event={event}
               className="sm:last:col-span-2 sm:last:mx-auto sm:last:w-[calc(50%-0.625rem)] lg:last:col-span-1 lg:last:mx-0 lg:last:w-auto"
             />
           ))}
