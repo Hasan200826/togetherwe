@@ -145,6 +145,7 @@ export function Navbar() {
                     <SheetClose
                       key={item.href}
                       render={<Link href={item.href} />}
+                      nativeButton={false}
                       aria-current={active ? "page" : undefined}
                       className={cn(
                         "rounded-xl px-4 py-3 text-sm font-semibold transition-colors",

@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   Eye,
   EyeOff,
+  Image as ImageIcon,
   Lock,
   Mail,
   Sparkles,
@@ -21,20 +22,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { authClient } from "@/lib/auth-client";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 type RegisterFormState = {
   fullName: string;
   email: string;
+  profileUrl: string;
   password: string;
   confirmPassword: string;
-};
-export type FormInfo = {
-  fullName: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-  agreedToTerms: boolean;
 };
 
 type RegisterErrors = Partial<
@@ -44,6 +39,7 @@ type RegisterErrors = Partial<
 const INITIAL_FORM: RegisterFormState = {
   fullName: "",
   email: "",
+  profileUrl: "",
   password: "",
   confirmPassword: "",
 };
@@ -51,6 +47,7 @@ const INITIAL_FORM: RegisterFormState = {
 const FIELD_ORDER: (keyof RegisterErrors)[] = [
   "fullName",
   "email",
+  "profileUrl",
   "password",
   "confirmPassword",
   "terms",
@@ -59,12 +56,14 @@ const FIELD_ORDER: (keyof RegisterErrors)[] = [
 const FIELD_IDS: Record<keyof RegisterErrors, string> = {
   fullName: "register-full-name",
   email: "register-email",
+  profileUrl: "register-profile-url",
   password: "register-password",
   confirmPassword: "register-confirm-password",
   terms: "register-terms",
 };
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const IMAGE_URL_PATTERN = /^https?:\/\/\S+$/i;
 
 function GoogleIcon({ className }: { className?: string }) {
   return (
@@ -107,6 +106,7 @@ export function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   function updateField(field: keyof RegisterFormState, value: string) {
     setForm((previous) => ({ ...previous, [field]: value }));
@@ -170,6 +170,11 @@ export function RegisterForm() {
       next.confirmPassword = "Passwords do not match.";
     }
 
+    const profileUrl = form.profileUrl.trim();
+    if (profileUrl && !IMAGE_URL_PATTERN.test(profileUrl)) {
+      next.profileUrl = "Enter a valid image URL starting with https://";
+    }
+
     if (!agreed) {
       next.terms = "Please accept the Terms & Conditions and Privacy Policy.";
     }
@@ -199,27 +204,24 @@ export function RegisterForm() {
       return;
     }
 
-    const formInfo = {
+    setSubmitError("");
+
+    const profileUrl = form.profileUrl.trim();
+    const { error } = await authClient.signUp.email({
       name: form.fullName.trim(),
       email: form.email.trim(),
       password: form.password,
-      confirmPassword: form.confirmPassword,
-      agreedToTerms: agreed,
-    };
-
-    console.log("Register form info:", formInfo);
-
-    const { data, error } = await authClient.signUp.email({
-      ...(formInfo as FormInfo),
+      ...(profileUrl ? { image: profileUrl } : {}),
     });
 
-    console.log(error);
-
-    if (!error) {
-      setSubmitted(true);
-      router.replace("/");
-      router.refresh();
+    if (error) {
+      setSubmitError(error.message ?? "Registration failed. Please try again.");
+      return;
     }
+
+    setSubmitted(true);
+    router.replace("/");
+    router.refresh();
   }
 
   return (
@@ -345,6 +347,49 @@ export function RegisterForm() {
                 className="text-xs font-medium text-destructive"
               >
                 {errors.email}
+              </p>
+            ) : null}
+          </div>
+
+          <div className="space-y-1.5">
+            <Label
+              htmlFor="register-profile-url"
+              className="text-[0.8rem] font-semibold text-zinc-800"
+            >
+              Profile Photo URL
+              <span className="ml-1.5 text-[0.7rem] font-normal text-zinc-400">
+                (optional)
+              </span>
+            </Label>
+            <div className="relative">
+              <ImageIcon
+                aria-hidden="true"
+                className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-zinc-400"
+              />
+              <Input
+                id="register-profile-url"
+                name="profileUrl"
+                type="url"
+                inputMode="url"
+                autoComplete="url"
+                value={form.profileUrl}
+                placeholder="https://example.com/photo.jpg"
+                aria-invalid={Boolean(errors.profileUrl)}
+                aria-describedby={
+                  errors.profileUrl ? "register-profile-url-error" : undefined
+                }
+                onChange={(event) =>
+                  updateField("profileUrl", event.target.value)
+                }
+                className="h-11 rounded-xl border-zinc-200 bg-white pr-3.5 pl-10 text-sm shadow-none placeholder:text-zinc-400 focus-visible:border-brand focus-visible:ring-brand/20"
+              />
+            </div>
+            {errors.profileUrl ? (
+              <p
+                id="register-profile-url-error"
+                className="text-xs font-medium text-destructive"
+              >
+                {errors.profileUrl}
               </p>
             ) : null}
           </div>
@@ -524,6 +569,15 @@ export function RegisterForm() {
             Register
           </Button>
 
+          {submitError ? (
+            <p
+              role="alert"
+              className="rounded-xl border border-destructive/30 bg-destructive/10 px-3.5 py-2.5 text-xs font-medium text-destructive"
+            >
+              {submitError}
+            </p>
+          ) : null}
+
           {submitted ? (
             <div
               role="status"
@@ -534,8 +588,7 @@ export function RegisterForm() {
                 className="mt-0.5 size-4 shrink-0 text-brand"
               />
               <p className="text-xs leading-relaxed">
-                Registration info logged to the console. Check your browser dev
-                tools.
+                Account created. Taking you to the home page...
               </p>
             </div>
           ) : null}

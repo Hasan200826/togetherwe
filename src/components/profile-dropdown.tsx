@@ -45,6 +45,18 @@ export function ProfileDropdown() {
   // Better Auth session
   const { data: session, isPending } = authClient.useSession();
 
+  const user = session?.user;
+  const displayName = user?.name?.trim() || "Member";
+  const initials =
+    displayName
+      .split(/\s+/)
+      .map((part) => part.charAt(0))
+      .filter(Boolean)
+      .slice(0, 2)
+      .join("")
+      .toUpperCase() || "U";
+  const profileImageUrl = user?.image || undefined;
+
   if (isPending) {
     return (
       <span
@@ -79,13 +91,15 @@ export function ProfileDropdown() {
           }
         >
           <Avatar className="h-9 w-9 bg-green-700">
-            <AvatarImage src="/profile.jpg" alt="Hasan" />
-            <AvatarFallback>HM</AvatarFallback>
+            {profileImageUrl ? (
+              <AvatarImage src={profileImageUrl} alt={displayName} />
+            ) : null}
+            <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
 
           {/* Name hidden below sm; it still shows in the dropdown itself */}
           <span className="hidden truncate text-sm font-semibold text-green-900 sm:inline">
-            {session?.user.name}
+            {displayName}
           </span>
 
           <ChevronDown className="h-4 w-4 text-green-800" />
@@ -99,16 +113,16 @@ export function ProfileDropdown() {
           {/* User Information */}
           <div className="flex items-center gap-3 px-3 py-3">
             <Avatar className="h-14 w-14">
-              <AvatarImage src="/profile.jpg" alt="Hasan Mahamud" />
-              <AvatarFallback>HM</AvatarFallback>
+              {profileImageUrl ? (
+                <AvatarImage src={profileImageUrl} alt={displayName} />
+              ) : null}
+              <AvatarFallback>{initials}</AvatarFallback>
             </Avatar>
 
             <div className="flex flex-col gap-1">
-              <p className="text-sm font-bold text-foreground">
-                {session?.user.name}
-              </p>
+              <p className="text-sm font-bold text-foreground">{displayName}</p>
 
-              <p className="text-xs text-gray-500">{session?.user.email}</p>
+              <p className="text-xs text-gray-500">{user?.email}</p>
             </div>
           </div>
 
