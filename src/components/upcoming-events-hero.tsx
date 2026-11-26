@@ -49,7 +49,7 @@ export function UpcomingEventsHero() {
           {/* Desktop wash so the copy stays legible over the photo */}
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-0 z-1 hidden bg-[linear-gradient(90deg,#fbfaf7_0%,#fbfaf7_28%,rgba(251,250,247,0.97)_38%,rgba(251,250,247,0.86)_47%,rgba(251,250,247,0.45)_60%,rgba(251,250,247,0.08)_72%,rgba(251,250,247,0)_82%)] lg:block"
+            className="pointer-events-none absolute inset-0 z-1 hidden bg-[linear-gradient(90deg,#fbfaf7_0%,#fbfaf7_28%,rgba(251,250,247,0.97)_38%,rgba(251,250,247,0.86)_47%,rgba(251,250,247,0.45)_60%,rgba(251,250,247,0.08)_72%,rgba(251,250,247,0)_82%)] dark:bg-[linear-gradient(90deg,#141414_0%,#141414_28%,rgba(20,20,20,0.97)_38%,rgba(20,20,20,0.86)_47%,rgba(20,20,20,0.45)_60%,rgba(20,20,20,0.08)_72%,rgba(20,20,20,0)_82%)] lg:block"
           />
 
           {/* Copy */}

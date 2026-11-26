@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, Search } from "lucide-react";
 
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -105,6 +106,8 @@ export function Navbar() {
             <Search className="size-5" strokeWidth={2.25} />
           </Button>
 
+          <ThemeToggle />
+
           <span
             aria-hidden="true"
             className="hidden h-7 w-px bg-zinc-200 lg:block"
@@ -155,6 +158,7 @@ export function Navbar() {
                   );
                 })}
               </nav>
+              <ThemeToggle variant="menu" />
               <ProfileAcount variant="sheet" />
             </SheetContent>
           </Sheet>

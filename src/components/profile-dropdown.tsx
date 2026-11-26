@@ -1,12 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useTheme } from "next-themes";
 import {
   UserRound,
   Users,
   Plus,
-  Moon,
   LogOut,
   ChevronDown,
   Bell,
@@ -44,7 +42,6 @@ const menuItems = [
 ];
 
 export function ProfileDropdown() {
-  const { setTheme } = useTheme();
   // Better Auth session
   const { data: session, isPending } = authClient.useSession();
 
@@ -97,7 +94,7 @@ export function ProfileDropdown() {
         <DropdownMenuContent
           align="end"
           sideOffset={12}
-          className="w-[290px] rounded-xl border border-gray-100 bg-white p-2 shadow-xl dark:border-gray-700 dark:bg-gray-900"
+          className="w-[290px] rounded-xl border border-border bg-popover p-2 shadow-xl"
         >
           {/* User Information */}
           <div className="flex items-center gap-3 px-3 py-3">
@@ -107,7 +104,7 @@ export function ProfileDropdown() {
             </Avatar>
 
             <div className="flex flex-col gap-1">
-              <p className="text-sm font-bold text-gray-900 dark:text-white">
+              <p className="text-sm font-bold text-foreground">
                 {session?.user.name}
               </p>
 
@@ -129,7 +126,7 @@ export function ProfileDropdown() {
                   className={`flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium ${
                     item.active
                       ? "bg-green-100 text-green-800 focus:bg-green-100 focus:text-green-800"
-                      : "text-gray-800 focus:bg-green-50 dark:text-gray-200 dark:focus:bg-gray-800"
+                      : "text-gray-800 focus:bg-green-50"
                   }`}
                 >
                   <Icon className="h-4 w-4" />
@@ -138,17 +135,6 @@ export function ProfileDropdown() {
               );
             })}
           </div>
-
-          <DropdownMenuSeparator />
-
-          {/* Dark Mode */}
-          <DropdownMenuItem
-            onSelect={() => setTheme("dark")}
-            className="flex cursor-pointer gap-3 rounded-lg px-3 py-2.5 text-sm font-medium"
-          >
-            <Moon className="h-4 w-4" />
-            Toggle Dark Mode
-          </DropdownMenuItem>
 
           <DropdownMenuSeparator />
 

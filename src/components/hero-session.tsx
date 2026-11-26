@@ -57,7 +57,7 @@ export function HeroSession() {
           {/* Desktop white wash so copy stays legible over the photo */}
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-0 hidden bg-[linear-gradient(90deg,#ffffff_0%,#ffffff_28%,rgba(255,255,255,0.97)_40%,rgba(255,255,255,0.78)_55%,rgba(255,255,255,0.32)_70%,rgba(255,255,255,0)_86%)] lg:block"
+            className="pointer-events-none absolute inset-0 hidden bg-[linear-gradient(90deg,#ffffff_0%,#ffffff_28%,rgba(255,255,255,0.97)_40%,rgba(255,255,255,0.78)_55%,rgba(255,255,255,0.32)_70%,rgba(255,255,255,0)_86%)] dark:bg-[linear-gradient(90deg,#141414_0%,#141414_28%,rgba(20,20,20,0.97)_40%,rgba(20,20,20,0.78)_55%,rgba(20,20,20,0.32)_70%,rgba(20,20,20,0)_86%)] lg:block"
           />
 
           {/* Copy */}

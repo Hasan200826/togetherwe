@@ -85,7 +85,7 @@ export function EventPreviewCard({ data }: { data: EventPreviewData }) {
         </div>
       </CardHeader>
 
-      <div className="relative aspect-[16/10] w-full overflow-hidden bg-[linear-gradient(135deg,#edf7ef_0%,#dcf0e1_100%)]">
+      <div className="relative aspect-[16/10] w-full overflow-hidden bg-[linear-gradient(135deg,#edf7ef_0%,#dcf0e1_100%)] dark:bg-[linear-gradient(135deg,#16241c_0%,#12291f_100%)]">
         {data.imageUrl ? (
           <Image
             src={data.imageUrl}

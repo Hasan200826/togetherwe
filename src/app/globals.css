@@ -129,6 +129,180 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* ---------------------------------------------------------------------------
+   Dark palette for the hard-coded light colors used across the app
+   (bg-white, text-zinc-*, tinted backgrounds, page gradients...).
+
+   The theme provider puts `class="dark"` on <html>, which activates:
+
+   1. the token remap below — neutral ramps and brand-soft go through CSS
+      variables, so every variant (hover:, focus:, /80 opacity, responsive
+      prefixes...) follows automatically;
+   2. the utility overrides — white surfaces and light tints are compiled as
+      literals, so they are remapped explicitly. They are written with
+      :where(.dark) (one class of specificity) inside the utilities layer, so
+      any existing `dark:` variant in a component still wins over them.
+--------------------------------------------------------------------------- */
+
+.dark {
+  --brand-soft: #133021;
+
+  /* zinc: surfaces and borders become dark, text becomes light */
+  --color-zinc-50: #141416;
+  --color-zinc-100: #232326;
+  --color-zinc-200: #3b3b40;
+  --color-zinc-300: #55555c;
+  --color-zinc-500: #a1a1aa;
+  --color-zinc-600: #d4d4d8;
+  --color-zinc-700: #e4e4e7;
+  --color-zinc-800: #f4f4f5;
+  --color-zinc-900: #fafafa;
+
+  /* gray: same treatment */
+  --color-gray-50: #141416;
+  --color-gray-100: #232326;
+  --color-gray-200: #3b3b40;
+  --color-gray-500: #a1a1aa;
+  --color-gray-600: #d4d4d8;
+  --color-gray-700: #e4e4e7;
+  --color-gray-800: #f4f4f5;
+  --color-gray-900: #fafafa;
+
+  /* slate */
+  --color-slate-100: #1e293b;
+  --color-slate-600: #cbd5e1;
+}
+
+@layer utilities {
+  /* Brand text needs to stay readable on dark backgrounds */
+  :where(.dark) .text-brand {
+    color: #3cb54a;
+  }
+  :where(.dark) .text-brand-strong {
+    color: #7ee2a0;
+  }
+  :where(.dark) .text-brand-strong\/75 {
+    color: #7ee2a0bf;
+  }
+  :where(.dark) .text-brand-strong\/60 {
+    color: #7ee2a099;
+  }
+  /* Hover/focus variants are separate utilities, so they need remapping too;
+     otherwise they fall back to the light-theme --brand-strong (#0c5126). */
+  :where(.dark) .hover\:text-brand-strong:hover,
+  :where(.dark) .focus\:text-brand-strong:focus,
+  :where(.dark) .focus-visible\:text-brand-strong:focus-visible {
+    color: #7ee2a0;
+  }
+
+  /* White surfaces */
+  :where(.dark) .bg-white {
+    background-color: #1d2024;
+  }
+  :where(.dark) .bg-white\/95 {
+    background-color: #1d2024f2;
+  }
+  :where(.dark) .bg-white\/85 {
+    background-color: #1d2024d9;
+  }
+  :where(.dark) .bg-white\/70 {
+    background-color: #1d2024b3;
+  }
+  :where(.dark) .hover\:bg-white:hover {
+    background-color: #1d2024;
+  }
+
+  /* Light page backgrounds */
+  :where(.dark) .bg-\[\#f7f8f4\],
+  :where(.dark) .bg-\[\#fbfaf7\],
+  :where(.dark) .bg-\[\#fbfcf8\],
+  :where(.dark) .bg-\[\#fdfbf7\],
+  :where(.dark) .bg-\[\#f8faf6\] {
+    background-color: #14161a;
+  }
+
+  /* Light green card tints */
+  :where(.dark) .bg-\[\#f4f9ef\],
+  :where(.dark) .bg-\[\#e3f2dc\],
+  :where(.dark) .bg-\[\#e1f4e5\],
+  :where(.dark) .bg-\[\#dcefd6\] {
+    background-color: #16241c;
+  }
+
+  /* Category chips and tip boxes */
+  :where(.dark) .bg-green-50,
+  :where(.dark) .hover\:bg-green-50:hover,
+  :where(.dark) .focus\:bg-green-50:focus {
+    background-color: #0f2b1c;
+  }
+  :where(.dark) .bg-green-100,
+  :where(.dark) .hover\:bg-green-100:hover,
+  :where(.dark) .focus\:bg-green-100:focus {
+    background-color: #14351f;
+  }
+  :where(.dark) .border-green-100 {
+    border-color: #1e3a2b;
+  }
+  :where(.dark) .bg-amber-50,
+  :where(.dark) .bg-amber-50\/70 {
+    background-color: #2a2415;
+  }
+  :where(.dark) .bg-amber-100 {
+    background-color: #332b18;
+  }
+  :where(.dark) .bg-violet-50 {
+    background-color: #211d33;
+  }
+  :where(.dark) .bg-sky-50 {
+    background-color: #14262e;
+  }
+  :where(.dark) .bg-orange-50 {
+    background-color: #2b2117;
+  }
+  :where(.dark) .bg-red-50 {
+    background-color: #2b1a1a;
+  }
+  :where(.dark) .border-amber-200\/70 {
+    border-color: #4a3f26b3;
+  }
+
+  /* Dark text sitting on those tints becomes light */
+  :where(.dark) .text-green-700 {
+    color: #4ade80;
+  }
+  :where(.dark) .text-green-800,
+  :where(.dark) .focus\:text-green-800:focus {
+    color: #86efac;
+  }
+  :where(.dark) .text-green-900 {
+    color: #86efac;
+  }
+  :where(.dark) .text-green-950 {
+    color: #86efac;
+  }
+  :where(.dark) .text-amber-600 {
+    color: #fbbf24;
+  }
+  :where(.dark) .text-amber-800\/80 {
+    color: #fde68acc;
+  }
+  :where(.dark) .text-amber-900 {
+    color: #fde68a;
+  }
+  :where(.dark) .text-violet-600 {
+    color: #a78bfa;
+  }
+  :where(.dark) .text-sky-600 {
+    color: #38bdf8;
+  }
+  :where(.dark) .text-orange-600 {
+    color: #fb923c;
+  }
+  :where(.dark) .text-\[\#064e2b\] {
+    color: #86efac;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

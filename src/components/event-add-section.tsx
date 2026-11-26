@@ -9,7 +9,7 @@ import {
 
 export default function AddEventBtn() {
   return (
-    <section className="relative mb-10 flex min-h-[100px] w-full items-center justify-between gap-3 overflow-hidden rounded-xl border border-green-100 bg-gradient-to-r from-[#e1f6c9] via-[#f3ffe8] to-[#d9f5b9] px-4 py-4 shadow-sm sm:px-6 sm:py-5 md:px-8 md:py-6 lg:px-10 lg:py-7">
+    <section className="relative mb-10 flex min-h-[100px] w-full items-center justify-between gap-3 overflow-hidden rounded-xl border border-green-100 bg-gradient-to-r from-[#e1f6c9] via-[#f3ffe8] to-[#d9f5b9] dark:from-[#16241c] dark:via-[#1a2f22] dark:to-[#12301f] px-4 py-4 shadow-sm sm:px-6 sm:py-5 md:px-8 md:py-6 lg:px-10 lg:py-7">
 
       {/* Left Leaf Decoration */}
       <div className="pointer-events-none absolute -left-2 -top-3 text-green-600/60">

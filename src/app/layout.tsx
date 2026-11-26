@@ -4,6 +4,7 @@ import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
 import "./globals.css";
 import { Suspense } from "react";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,20 +31,21 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
-      data-theme='light'
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} h-full antialiased light`}
       suppressHydrationWarning
     >
       <head>
       </head>
       <body className="min-h-full flex flex-col">
-        <Navbar/>
-        <Suspense fallback={<p>Loading events...</p>}>
-          {children}
-       </Suspense>
-        
-        <Footer />
+        <ThemeProvider>
+          <Navbar />
+          <Suspense fallback={<p>Loading events...</p>}>
+            {children}
+          </Suspense>
+
+          <Footer />
+        </ThemeProvider>
       </body>
     </html>
   );
